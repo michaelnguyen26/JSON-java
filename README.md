@@ -1,5 +1,16 @@
 # SWE 262P Project at UC Irvine
 
+Milestone 2 Description:
+
+Add an overloaded static method to the XML class with the signature
+* static JSONObject toJSONObject(Reader reader, JSONPointer path)
+
+Add an overloaded static method to the XML class with the signature
+
+* static JSONObject toJSONObject(Reader reader, JSONPointer path, JSONObject replacement)
+
+Write unit tests that use these two new functions, both for obtaining correct results and for testing error conditions.
+
 ![Json-Java logo](https://github.com/stleary/JSON-java/blob/master/images/JsonJava.png?raw=true)
 
 <sub><sup>image credit: Ismael Pérez Ortiz</sup></sub>
