@@ -773,14 +773,14 @@ public class XML {
             tagName = (String) token;
 
             // if tagName is the last in the path --> begin parsing replacement object to use as the final replacement below
-            Object saveTag = null;
-            String saveName = "";
-            if(tagName.equals(path[path.length - 1])){
-                for(String k : replace.keySet()){
-                    saveTag = replace.get(k); // save content of replacement object
-                    saveName = k;  // save key name of replacement object
-                }
-            }
+            // Object saveTag = null;
+            // String saveName = "";
+            // if(tagName.equals(path[path.length - 1])){
+            //     for(String k : replace.keySet()){
+            //         saveTag = replace.get(k); // save content of replacement object
+            //         saveName = k;  // save key name of replacement object
+            //     }
+            // }
 
             token = null;
             jsonObject = new JSONObject();
@@ -892,11 +892,18 @@ public class XML {
 
                                 // new logic to test if the final tag to replace is in the current iteration
                                 if(tagName.equals(path[path.length -1])){
-                                    context.remove(tagName);  // remove the tag we are currently at
-                                    if(context.has(saveName)){ // if key exists already append under an arrray
-                                        context.accumulate(saveName, saveTag);
+                                    Object saveTag = null;
+                                    String saveName = "";
+                                    for(String k : replace.keySet()){
+                                        saveTag = replace.get(k); // save content of replacement object
+                                        saveName = k;  // save key name of replacement object
+                                    }
+
+                                    if(!saveName.equals(tagName)){ // if key doesnt exist don't replace
+                                        System.out.println("Tag Mismatch for Replacement! (No Replacement)\n");
                                     }else{
-                                        context.put(saveName, saveTag);
+                                        System.out.println("Tag Replacement Successful!\n");
+                                        context.put(tagName, saveTag);
                                     }
                                 }
 
