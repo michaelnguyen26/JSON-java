@@ -45,6 +45,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.json.JSONPointer;
 import org.json.XML;
 import org.json.XMLParserConfiguration;
 import org.json.XMLXsiTypeConverter;
@@ -65,7 +66,76 @@ public class XMLTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
-    
+
+    // New Test Cases for Parse Functionality
+    @Test
+    public void shouldReturnSubObject(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street"));
+            if(jobj==null){
+                System.out.println(jobj);//null can't .toString()
+            }
+            else{
+                System.out.println(jobj.toString(4));
+            }
+            
+            JSONObject expected = XML.toJSONObject("<street>Ave of Nowhere</street>");
+            assertEquals(expected.toString(), jobj.toString()); // convert content to string to test bc .equals will check reference equality
+        } catch (JSONException e) {
+            System.out.println(e);
+        }   
+    }
+
+    @Test
+    public void shouldReplaceSubObject(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+                
+        String testxmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of the Arts</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+                
+        try {
+            JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street"), replacement);
+            if(jobj==null){
+                System.out.println(jobj);//null can't .toString()
+            }
+            else{
+                System.out.println(jobj.toString(4));
+            }
+            JSONObject expected = XML.toJSONObject(testxmlString);
+            assertEquals(expected.toString(), jobj.toString()); // convert content to string to test bc .equals will check reference equality
+        } catch (JSONException e) {
+            System.out.println(e);
+        }   
+    }
+    // END OF TEST FUNCTIONALITY
+
+
+
     /**
      * JSONObject from a null XML string.
      * Expects a NullPointerException
