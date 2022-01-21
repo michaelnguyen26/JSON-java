@@ -1144,7 +1144,8 @@ public class XML {
         return jo;
     }
 
-    static JSONObject toJSONObject(Reader reader, JSONPointer path, JSONObject replacement) {
+    // part 2 code
+    public static JSONObject toJSONObject(Reader reader, JSONPointer path, JSONObject replacement) {
         JSONObject jo = new JSONObject();
         XMLTokener x = new XMLTokener(reader);
         String[] pointer_path = path.toString().trim().split("/");
@@ -1169,7 +1170,7 @@ public class XML {
 
 
     //Part1 code
-    static JSONObject toJSONObject(Reader reader, JSONPointer path) throws JSONException{
+    public static JSONObject toJSONObject(Reader reader, JSONPointer path) throws JSONException{
 
         JSONObject jo = new JSONObject();
         XMLTokener x = new XMLTokener(reader);
