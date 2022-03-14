@@ -1,3 +1,26 @@
+# New Functionalities Added
+
+### Parsing Efficiency: (Target --> XML.java)
+
+* Increased efficiency in the XML.java class to support JSONObject lookups. Design effiecincy was achieved by utilizing the built-in parse function in the class. Once the object in question is found, parsing can stop. Thus, we do not need to read the entire object
+
+### Transformation of JSONObject Keys: (Target --> XML.java)
+
+* Added support to transform JSONObject keys when converting from XML to JSONObject by utilizing a functional programming style. A lambda function is passed as a parameter and the functional interface will accept the key and perform the desired transformation as a prefix, etc.
+
+### Stream JSONObject Values: (Target --> JSONObject.java)
+
+* Added support to call a toStream() method on JSONObject (this has not been developed yet). The spliterator API was utilized to recursively traverse each node of the JSONObject and apply stream operations on them.
+
+### Asynchronous Actions: (Target --> XML.java)
+
+* Added support for async call utilizing the CompletableFuture API. This allows the user to perform other tasks while the desired XML file is being tranformed to a JSONObject.
+
+
+Thank you for checking out the new functionalities. As always, please refer to the main repository for any official changes!
+
+
+
 ![Json-Java logo](https://github.com/stleary/JSON-java/blob/master/images/JsonJava.png?raw=true)
 
 <sub><sup>image credit: Ismael Pérez Ortiz</sup></sub>
