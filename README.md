@@ -17,7 +17,7 @@
 * Added support for async call utilizing the CompletableFuture API. This allows the user to perform other tasks while the desired XML file is being tranformed to a JSONObject.
 
 
-#### All test cases were written in their respective class names. 
+#### NOTE: All test cases were written with their respective class names. 
 
 Thank you for checking out the new functionalities. As always, please refer to the main repository for any official changes! The official documentation is described below.
 
