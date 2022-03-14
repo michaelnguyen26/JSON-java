@@ -45,9 +45,13 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external
@@ -102,13 +106,134 @@ import java.util.regex.Pattern;
  * @author JSON.org
  * @version 2016-08-15
  */
-public class JSONObject {
+
+public class JSONObject{
+
+    ////////// Added Functionality for Milestone 4 //////////
+
+    class MySpliterator implements Spliterator<JSONObject>{
+
+        JSONObject object;
+
+        public MySpliterator(JSONObject obj){
+            // Use "this" JSONObject passed in as a constructor to the object variable of this class
+            this.object = obj; 
+         }
+       
+        @Override
+        public int characteristics() {
+          return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL;
+        }
+    
+        @Override
+        public long estimateSize() {
+          return Long.MAX_VALUE;
+        }
+    
+        @Override
+        public boolean tryAdvance(Consumer<? super JSONObject> action) {
+
+            JSONObject newObject = object; // get newObject from the object and updated thereafter through recursion
+            Iterator<String> k = newObject.keys(); // create new iterator based on the keys
+            
+            while(k.hasNext()) {
+                String key = k.next();
+                
+                // This is the content of the key
+                if(newObject.get(key) instanceof String) {
+                    JSONObject temp = new JSONObject(); // create a new temp JSONObject
+                    temp.put(key, newObject.get(key)); // put the content in the temp object
+                    action.accept(temp); // accept the temp object as a node and loop to the next key
+                }
+
+                // Found a JSONObject
+                else if(newObject.get(key) instanceof JSONObject) {
+                    JSONObject temp = new JSONObject(); // create a new temp JSONObject
+                    temp.put(key, newObject.get(key)); // put the content in the temp object
+                    action.accept(temp); // accept the temp object as a node 
+                    object = (JSONObject) newObject.get(key); // update the object since a hierachy still exists
+                    tryAdvance(action); // recurse with the newly updated object
+
+                }
+
+                // Found a JSONArray
+                else if(newObject.get(key) instanceof JSONArray){
+                    action.accept(newObject); // accept the entire object that is the array
+                    // JSONObject temp = new JSONObject();
+
+                    JSONArray jArray = newObject.getJSONArray((String) key); // get JSONArray object
+                    
+                    for(int i = 0; i < jArray.length();i++){
+                        object = jArray.getJSONObject(i); // set my object equal to the JSONArray object
+                        tryAdvance(action); // recurse with the new object from the array
+
+                        // temp.put(key, nestedObj);
+                        // action.accept(temp);
+                    }
+                }else{
+                    // This could be any other instanceof --> Integer, Float, etc.
+                    JSONObject temp = new JSONObject();
+                    temp.put(key, newObject.get(key));
+                    action.accept(temp);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Spliterator<JSONObject> trySplit() {
+            return null;
+        }
+
+    }
+
+    // Build/Create the Streaming method
+
+    /**
+     * Returns a stream of key and values that provide functionality for streaming operations
+     * @return Stream<Object>
+     */
+    public Stream<JSONObject> toStream() {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
+
+    // Instantiate Spliterator Object and return to the toStream() method
+    public Spliterator<JSONObject> spliterator() {
+        JSONObject thisObject = this;
+        return new MySpliterator(thisObject);
+    }
+
+    // FROM the .toMap() method
+
+        // Map<String, Object> results = new HashMap<String, Object>();
+        // for (Entry<String, Object> entry : this.entrySet()) {
+        //     Object value;
+        //     if (entry.getValue() == null || NULL.equals(entry.getValue())) {
+        //         value = null;
+        //     } else if (entry.getValue() instanceof JSONObject) {
+        //         value = ((JSONObject) entry.getValue()).toMap();
+        //     } else if (entry.getValue() instanceof JSONArray) {
+        //         value = ((JSONArray) entry.getValue()).toList();
+        //     } else {
+        //         value = entry.getValue();
+        //     }
+        //     results.put(entry.getKey(), value);
+        // }
+
+    // END .toMap() method
+
+    ////////// END OF MILESTONE 4 FUNCTIONALITY //////////
+    
+     
+
+    
     /**
      * JSONObject.NULL is equivalent to the value that JavaScript calls null,
      * whilst Java's null is equivalent to the value that JavaScript calls
      * undefined.
      */
     private static final class Null {
+
 
         /**
          * There is only intended to be a single instance of the NULL object,

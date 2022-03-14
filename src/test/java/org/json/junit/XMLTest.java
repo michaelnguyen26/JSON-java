@@ -40,6 +40,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,8 +68,121 @@ public class XMLTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
+    /////////// Test Cases for Milestone 5 ///////////
 
-    // New Test Cases for Parse Functionality
+    @Test
+    public void shouldReturnAsyncObject(){
+
+        String xml = "<?xml version=\"1.0\"?>\n" +
+        "<catalog>\n" +
+        "    <book id=\"bk101\">\n" +
+        "        <author>Gambardella, Matthew</author>\n" +
+        "        <title>XML Developer's Guide</title>\n" +
+        "    </book>\n" +
+        "    <book id=\"bk102\">\n" +
+        "        <author>Ralls, Kim</author>\n" +
+        "        <title>Midnight Rain</title>\n" +
+        "    </book>"+
+        "    </catalog>" ;
+
+        String xmlExpected = "<?xml version=\"1.0\"?>\n" +
+        "<catalog>\n" +
+        "    <book id=\"bk101\">\n" +
+        "        <author>Gambardella, Matthew</author>\n" +
+        "        <title>XML Developer's Guide</title>\n" +
+        "    </book>\n" +
+        "    <book id=\"bk102\">\n" +
+        "        <author>Ralls, Kim</author>\n" +
+        "        <title>Midnight Rain</title>\n" +
+        "    </book>"+
+        "    </catalog>" ;
+
+        Consumer<Exception> sendError = (err) -> System.out.println(err);
+
+        CompletableFuture<JSONObject> jobj = XML.toJSONObject(new StringReader(xml), sendError);
+        JSONObject expected = null;
+        
+        while(!jobj.isDone()){     
+            expected = XML.toJSONObject(xmlExpected);
+        }
+
+        try{
+            assertEquals(expected.toString(), jobj.get().toString());
+        }catch(Exception e){
+            System.out.println(e);
+        }
+    }
+
+
+
+    /////////// Two Test Cases for Milestone 3 ///////////
+
+    @Test
+    public void shouldTranformKey(){
+
+        // Test Case 1
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+
+            String expectedResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+            "<test_contact>\n"+
+            "  <test_nick>Crista </test_nick>\n"+
+            "  <test_name>Crista Lopes</test_name>\n" +
+            "  <test_address>\n" +
+            "    <test_street>Ave of Nowhere</test_street>\n" +
+            "    <test_zipcode>92614</test_zipcode>\n" +
+            "  </test_address>\n" +
+            "</test_contact>";
+
+            // Test Case 2
+            String expectedResult2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+            "<\"\">\n"+
+            "  <\"\">Crista </\"\">\n"+
+            "  <\"\">Crista Lopes</\"\">\n" +
+            "  <\"\">\n" +
+            "    <\"\">Ave of Nowhere</\"\">\n" +
+            "    <\"\">92614</\"\">\n" +
+            "  </\"\">\n" +
+            "</\"\">";
+
+        JSONObject jobj;
+        JSONObject jobj2;
+        JSONObject expectedObj;
+        JSONObject expectedObj2;
+
+        try {
+            jobj = XML.toJSONObject(new StringReader(xmlString), (str) -> "test_" + str); // take str input and return an appended prefix to the str input
+            jobj2 = XML.toJSONObject(new StringReader(xmlString), (str) -> ""); // take str input and return a blank key
+            expectedObj = XML.toJSONObject(expectedResult);
+            expectedObj2 = XML.toJSONObject(expectedResult2);
+        } catch (JSONException e) {
+            System.out.println(e);
+            jobj = null;
+            jobj2 = null;
+            /* Make expectedobj and expectedobj2 a new object to make them different meaning 
+            * they are not the same --> test case should fail
+            */
+            expectedObj = new JSONObject();
+            expectedObj2 = new JSONObject();
+        }
+
+        // Test Case 1 --> Check for "test_" + tagName key
+        assertEquals(expectedObj.toString(), jobj.toString());
+
+        // Test Case 2 --> Check for blank key
+        assertEquals(expectedObj2.toString(), jobj2.toString());
+    }
+
+
+
+    // New Test Cases for Parse Functionality (Milestone 2)
     @Test
     public void shouldReturnSubObject(){
         String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
